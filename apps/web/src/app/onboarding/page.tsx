@@ -174,7 +174,7 @@ export default function OnboardingPage() {
                     type="checkbox"
                     checked={formData.hasSenior}
                     onChange={(e) => updateFormData({ hasSenior: e.target.checked })}
-                    className="w-5 h-5 rounded border-gray-300 text-chicago-blue-600 focus:ring-chicago-blue-500"
+                    className="w-5 h-5 rounded-sm border-gray-300 text-chicago-blue-600 focus:ring-chicago-blue-500"
                   />
                   <span>Someone in my household is 62 years or older</span>
                 </label>
@@ -185,7 +185,7 @@ export default function OnboardingPage() {
                     onChange={(e) =>
                       updateFormData({ hasDisabled: e.target.checked })
                     }
-                    className="w-5 h-5 rounded border-gray-300 text-chicago-blue-600 focus:ring-chicago-blue-500"
+                    className="w-5 h-5 rounded-sm border-gray-300 text-chicago-blue-600 focus:ring-chicago-blue-500"
                   />
                   <span>Someone in my household has a disability</span>
                 </label>
@@ -282,7 +282,7 @@ export default function OnboardingPage() {
                       onChange={(e) =>
                         updateFormData({ hasChaDebt: e.target.checked })
                       }
-                      className="w-5 h-5 mt-0.5 rounded border-gray-300 text-chicago-blue-600 focus:ring-chicago-blue-500"
+                      className="w-5 h-5 mt-0.5 rounded-sm border-gray-300 text-chicago-blue-600 focus:ring-chicago-blue-500"
                     />
                     <div>
                       <span className="font-medium">

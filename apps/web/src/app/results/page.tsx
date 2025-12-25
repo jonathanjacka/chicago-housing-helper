@@ -190,7 +190,7 @@ export default function ResultsPage() {
       </header>
 
       {/* Summary */}
-      <section className="bg-gradient-to-r from-chicago-blue-600 to-chicago-blue-500 text-white py-8">
+      <section className="bg-linear-to-r from-chicago-blue-600 to-chicago-blue-500 text-white py-8">
         <div className="max-w-4xl mx-auto px-4">
           <h1 className="text-2xl sm:text-3xl font-bold mb-4">
             We found {results?.summary.total} programs
