@@ -12,7 +12,6 @@ interface FormData {
   hasSenior: boolean;
   hasDisabled: boolean;
   annualIncome: number;
-  hasCitizenship: boolean;
   hasChaDebt: boolean;
 }
 
@@ -23,7 +22,6 @@ const initialFormData: FormData = {
   hasSenior: false,
   hasDisabled: false,
   annualIncome: 0,
-  hasCitizenship: true,
   hasChaDebt: false,
 };
 
@@ -280,28 +278,6 @@ export default function OnboardingPage() {
                   <label className="flex items-start gap-3 cursor-pointer">
                     <input
                       type="checkbox"
-                      checked={formData.hasCitizenship}
-                      onChange={(e) =>
-                        updateFormData({ hasCitizenship: e.target.checked })
-                      }
-                      className="w-5 h-5 mt-0.5 rounded border-gray-300 text-chicago-blue-600 focus:ring-chicago-blue-500"
-                    />
-                    <div>
-                      <span className="font-medium">
-                        At least one person in my household is a U.S. citizen or
-                        has eligible immigration status
-                      </span>
-                      <p className="text-sm text-gray-500 mt-1">
-                        This is required for most federal housing programs.
-                      </p>
-                    </div>
-                  </label>
-                </div>
-
-                <div className="p-4 border rounded-lg">
-                  <label className="flex items-start gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
                       checked={formData.hasChaDebt}
                       onChange={(e) =>
                         updateFormData({ hasChaDebt: e.target.checked })
@@ -379,11 +355,6 @@ export default function OnboardingPage() {
                 <div className="p-4 bg-gray-50 rounded-lg">
                   <h3 className="font-medium text-gray-900 mb-2">Eligibility</h3>
                   <ul className="text-gray-700 space-y-1">
-                    <li>
-                      {formData.hasCitizenship
-                        ? '✓ Has eligible citizenship/immigration status'
-                        : '✗ No eligible citizenship/immigration status'}
-                    </li>
                     <li>
                       {formData.hasChaDebt
                         ? '✗ Has outstanding CHA debt'
