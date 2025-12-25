@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --foreground: #171717;
+  --background: #ffffff;
+  --accent: #0087e6;
+  --accent-light: #e6f4ff;
+  --warm: #f97316;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground: #ededed;
+    --background: #0a0a0a;
+    --accent: #4db2ff;
+    --accent-light: #00334d;
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* Custom utilities */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Form styling */
+@layer components {
+  .form-input {
+    @apply w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-chicago-blue-500 focus:ring-2 focus:ring-chicago-blue-200 outline-none transition-all duration-200;
+  }
+
+  .form-label {
+    @apply block text-sm font-medium text-gray-700 mb-2;
+  }
+
+  .btn-primary {
+    @apply px-6 py-3 bg-chicago-blue-500 text-white font-semibold rounded-lg hover:bg-chicago-blue-600 focus:ring-4 focus:ring-chicago-blue-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply px-6 py-3 bg-gray-100 text-gray-800 font-semibold rounded-lg hover:bg-gray-200 focus:ring-4 focus:ring-gray-100 transition-all duration-200;
+  }
+
+  .btn-warm {
+    @apply px-6 py-3 bg-warm-500 text-white font-semibold rounded-lg hover:bg-warm-600 focus:ring-4 focus:ring-warm-200 transition-all duration-200;
+  }
+
+  .card {
+    @apply bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200;
+  }
+}

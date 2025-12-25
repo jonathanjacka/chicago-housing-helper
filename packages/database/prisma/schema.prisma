@@ -1,0 +1,178 @@
+// Prisma schema for Chicago Housing Navigator
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// USER MODELS
+// ============================================================================
+
+model User {
+  id        String   @id @default(cuid())
+  email     String?  @unique
+  phone     String?  @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  profile      Profile?
+  applications Application[]
+}
+
+model Profile {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Household composition
+  householdSize Int
+  numAdults     Int      @default(1)
+  numChildren   Int      @default(0)
+  hasSenior     Boolean  @default(false) // Someone 62+
+  hasDisabled   Boolean  @default(false)
+
+  // Income
+  annualIncome Decimal @db.Decimal(12, 2)
+
+  // Eligibility factors
+  hasChaDebt     Boolean @default(false)
+
+  // Preferences
+  preferredNeighborhoods String[] @default([])
+}
+
+// ============================================================================
+// HOUSING PROGRAM MODELS
+// ============================================================================
+
+enum ProgramType {
+  HCV           // Housing Choice Voucher (Section 8)
+  PUBLIC_HOUSING
+  PBV           // Project-Based Voucher
+  PBRA          // Project-Based Rental Assistance
+  ARO           // Affordable Requirements Ordinance
+  LIHTC         // Low-Income Housing Tax Credit
+  OTHER
+}
+
+enum WaitlistStatus {
+  OPEN
+  CLOSED
+  LOTTERY
+  UNKNOWN
+}
+
+enum TargetPopulation {
+  FAMILY
+  SENIOR
+  DISABLED
+  ALL
+}
+
+model Program {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Basic info
+  name        String
+  provider    String // CHA, City of Chicago, specific non-profit, etc.
+  type        ProgramType
+  description String?
+
+  // Waitlist info
+  waitlistStatus WaitlistStatus  @default(UNKNOWN)
+  targetPopulation TargetPopulation @default(ALL)
+
+  // Eligibility requirements
+  incomeLimitPctAmi Int? // e.g., 30, 50, 60, 80, 100
+  minHouseholdSize  Int  @default(1)
+  maxHouseholdSize  Int  @default(10)
+
+  // Location
+  address      String?
+  neighborhood String?
+  zipCode      String?
+
+  // Contact
+  contactPhone String?
+  contactEmail String?
+  websiteUrl   String?
+  applicationUrl String?
+
+  // Data quality
+  lastSynced   DateTime?
+  dataSource   String?
+  notes        String?
+
+  applications Application[]
+
+  @@index([type])
+  @@index([waitlistStatus])
+  @@index([neighborhood])
+}
+
+// ============================================================================
+// APPLICATION TRACKING
+// ============================================================================
+
+enum ApplicationStatus {
+  INTERESTED    // User marked as interested
+  IN_PROGRESS   // Started application
+  SUBMITTED     // Application submitted
+  ON_WAITLIST   // Confirmed on waitlist
+  OFFERED       // Unit offered
+  ACCEPTED      // User accepted offer
+  DECLINED      // User declined offer
+  REMOVED       // Removed from waitlist
+}
+
+model Application {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  programId String
+  program   Program @relation(fields: [programId], references: [id])
+
+  status           ApplicationStatus @default(INTERESTED)
+  appliedAt        DateTime?
+  waitlistPosition Int?
+  lastStatusCheck  DateTime?
+  notes            String?
+
+  @@unique([userId, programId])
+  @@index([userId])
+  @@index([programId])
+  @@index([status])
+}
+
+// ============================================================================
+// AMI LIMITS (Updated annually by HUD)
+// ============================================================================
+
+model AmiLimit {
+  id    String @id @default(cuid())
+  year  Int
+  householdSize Int
+
+  // Income limits at various AMI percentages
+  ami100 Decimal @db.Decimal(12, 2) // 100% AMI
+  ami80  Decimal @db.Decimal(12, 2) // 80% AMI (Low Income)
+  ami60  Decimal @db.Decimal(12, 2) // 60% AMI
+  ami50  Decimal @db.Decimal(12, 2) // 50% AMI (Very Low Income)
+  ami30  Decimal @db.Decimal(12, 2) // 30% AMI (Extremely Low Income)
+
+  @@unique([year, householdSize])
+  @@index([year])
+}

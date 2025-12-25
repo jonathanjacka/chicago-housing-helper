@@ -1,0 +1,25 @@
+{
+  "name": "Chicago Housing Navigator",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "forwardPorts": [3000, 5432],
+  "postCreateCommand": "npm install -g pnpm && pnpm install",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "bradlc.vscode-tailwindcss",
+        "prisma.prisma"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+      }
+    }
+  },
+  "containerEnv": {
+    "DATABASE_URL": "postgresql://postgres:postgres@db:5432/housing_navigator?schema=public"
+  }
+}
