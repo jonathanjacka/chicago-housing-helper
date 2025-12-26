@@ -14,7 +14,7 @@ export interface MatchResult {
   program: Program;
   eligibility: {
     isEligible: boolean;
-    score: number; // 0-100
+    score: number;
     checks: EligibilityCheck[];
   };
 }
@@ -26,6 +26,37 @@ export interface EligibilityCheck {
   severity: 'blocker' | 'warning' | 'info';
 }
 
+export interface MatchFilters {
+  eligibility?: 'all' | 'eligible' | 'open';
+  neighborhood?: string;
+  programType?: string;
+  search?: string;
+}
+
+export interface PaginationParams {
+  page: number;
+  pageSize: number;
+}
+
+export interface PaginatedMatchResult {
+  matches: MatchResult[];
+  pagination: {
+    page: number;
+    pageSize: number;
+    totalPages: number;
+    totalCount: number;
+  };
+  summary: {
+    total: number;
+    eligible: number;
+    openWaitlists: number;
+  };
+  availableFilters: {
+    neighborhoods: string[];
+    programTypes: string[];
+  };
+}
+
 /**
  * Calculate the user's percentage of Area Median Income
  */
@@ -33,16 +64,14 @@ export async function calculateAmiPercentage(
   householdSize: number,
   annualIncome: number
 ): Promise<number> {
-  // Get AMI limit for household size (most recent year available)
   const amiLimit = await prisma.amiLimit.findFirst({
     where: {
-      householdSize: Math.min(householdSize, 8), // Cap at 8 for lookup
+      householdSize: Math.min(householdSize, 8),
     },
     orderBy: { year: 'desc' },
   });
 
   if (!amiLimit) {
-    // Fallback to rough estimate if no data
     const estimatedAmi100 = 80000 + (householdSize - 1) * 10000;
     return Math.round((annualIncome / estimatedAmi100) * 100);
   }
@@ -58,7 +87,6 @@ export async function getIncomeLimit(
   householdSize: number,
   amiPercentage: number
 ): Promise<number> {
-  // Get most recent AMI data available
   const amiLimit = await prisma.amiLimit.findFirst({
     where: {
       householdSize: Math.min(householdSize, 8),
@@ -70,7 +98,6 @@ export async function getIncomeLimit(
     return 0;
   }
 
-  // Map percentage to the appropriate column
   const amiMap: Record<number, Decimal> = {
     30: amiLimit.ami30,
     50: amiLimit.ami50,
@@ -79,7 +106,6 @@ export async function getIncomeLimit(
     100: amiLimit.ami100,
   };
 
-  // Find the closest match
   const percentages = [30, 50, 60, 80, 100];
   const closest = percentages.reduce((prev, curr) =>
     Math.abs(curr - amiPercentage) < Math.abs(prev - amiPercentage) ? curr : prev
@@ -88,9 +114,6 @@ export async function getIncomeLimit(
   return Number(amiMap[closest]);
 }
 
-/**
- * Check eligibility for a single program
- */
 /**
  * Check eligibility for a single program
  */
@@ -240,7 +263,6 @@ export async function checkProgramEligibility(
     });
   }
 
-  // Calculate if eligible (no blockers)
   const hasBlocker = checks.some((c) => !c.passed && c.severity === 'blocker');
   const isEligible = !hasBlocker;
 
@@ -255,30 +277,117 @@ export async function checkProgramEligibility(
 }
 
 /**
- * Find all matching programs for a user profile
+ * Get available filter options (neighborhoods and program types with data)
+ */
+export async function getAvailableFilters(): Promise<{ neighborhoods: string[]; programTypes: string[] }> {
+  const [neighborhoods, programTypes] = await Promise.all([
+    prisma.program.findMany({
+      where: { neighborhood: { not: null } },
+      select: { neighborhood: true },
+      distinct: ['neighborhood'],
+    }),
+    prisma.program.findMany({
+      select: { type: true },
+      distinct: ['type'],
+    }),
+  ]);
+
+  return {
+    neighborhoods: neighborhoods
+      .map((n) => n.neighborhood)
+      .filter((n): n is string => n !== null)
+      .sort(),
+    programTypes: programTypes.map((p) => p.type).sort(),
+  };
+}
+
+/**
+ * Find matching programs with pagination and filtering
  */
 export async function findMatchingPrograms(
-  profile: UserProfile
-): Promise<MatchResult[]> {
-  // Get all programs
+  profile: UserProfile,
+  filters: MatchFilters = {},
+  pagination: PaginationParams = { page: 1, pageSize: 20 }
+): Promise<PaginatedMatchResult> {
+  // Build where clause for filtering
+  const where: Record<string, unknown> = {};
+
+  if (filters.neighborhood) {
+    where.neighborhood = filters.neighborhood;
+  }
+
+  if (filters.programType) {
+    where.type = filters.programType;
+  }
+
+  if (filters.search) {
+    where.OR = [
+      { name: { contains: filters.search, mode: 'insensitive' } },
+      { address: { contains: filters.search, mode: 'insensitive' } },
+      { provider: { contains: filters.search, mode: 'insensitive' } },
+    ];
+  }
+
+  // Get total count for pagination
+  const totalCount = await prisma.program.count({ where });
+
+  // Get all programs (we need to check eligibility for all to filter by eligibility)
   const programs = await prisma.program.findMany({
+    where,
     orderBy: [
-      { waitlistStatus: 'asc' }, // Open first
+      { waitlistStatus: 'asc' },
       { name: 'asc' },
     ],
   });
 
   // Check eligibility for each
-  const results = await Promise.all(
+  const allResults = await Promise.all(
     programs.map((program) => checkProgramEligibility(profile, program))
   );
 
-  // Sort by eligibility score (highest first), then by waitlist status
-  return results.sort((a, b) => {
-    // Eligible programs first
+  // Apply eligibility filter
+  let filteredResults = allResults;
+  if (filters.eligibility === 'eligible') {
+    filteredResults = allResults.filter((m) => m.eligibility.isEligible);
+  } else if (filters.eligibility === 'open') {
+    filteredResults = allResults.filter(
+      (m) => m.eligibility.isEligible && m.program.waitlistStatus === 'OPEN'
+    );
+  }
+
+  // Sort by eligibility score
+  filteredResults.sort((a, b) => {
     if (a.eligibility.isEligible && !b.eligibility.isEligible) return -1;
     if (!a.eligibility.isEligible && b.eligibility.isEligible) return 1;
-    // Then by score
     return b.eligibility.score - a.eligibility.score;
   });
+
+  // Calculate summary from filtered results
+  const summary = {
+    total: filteredResults.length,
+    eligible: filteredResults.filter((m) => m.eligibility.isEligible).length,
+    openWaitlists: filteredResults.filter(
+      (m) => m.eligibility.isEligible && m.program.waitlistStatus === 'OPEN'
+    ).length,
+  };
+
+  // Paginate
+  const startIndex = (pagination.page - 1) * pagination.pageSize;
+  const paginatedMatches = filteredResults.slice(startIndex, startIndex + pagination.pageSize);
+  const totalPages = Math.ceil(filteredResults.length / pagination.pageSize);
+
+  // Get available filters
+  const availableFilters = await getAvailableFilters();
+
+  return {
+    matches: paginatedMatches,
+    pagination: {
+      page: pagination.page,
+      pageSize: pagination.pageSize,
+      totalPages,
+      totalCount: filteredResults.length,
+    },
+    summary,
+    availableFilters,
+  };
 }

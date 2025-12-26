@@ -20,6 +20,8 @@ export interface Program {
   applicationUrl: string | null;
   contactPhone: string | null;
   neighborhood: string | null;
+  address: string | null;
+  dataSource: string | null;
 }
 
 export interface MatchResult {
@@ -31,12 +33,31 @@ export interface MatchResult {
   };
 }
 
+export interface PaginationInfo {
+  page: number;
+  pageSize: number;
+  totalPages: number;
+  totalCount: number;
+}
+
+export interface MatchFilters {
+  eligibility?: 'all' | 'eligible' | 'open';
+  neighborhood?: string;
+  programType?: string;
+  search?: string;
+}
+
 export interface MatchResponse {
   matches: MatchResult[];
+  pagination: PaginationInfo;
   summary: {
     total: number;
     eligible: number;
     openWaitlists: number;
+  };
+  availableFilters: {
+    neighborhoods: string[];
+    programTypes: string[];
   };
 }
 

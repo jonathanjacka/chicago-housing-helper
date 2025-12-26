@@ -7,7 +7,8 @@ import {
   ProgramCard,
   DocumentsCTA,
   CitizenshipNote,
-  FilterBar,
+  Pagination,
+  SearchFilter,
 } from './_components';
 
 export default function ResultsPage() {
@@ -15,14 +16,16 @@ export default function ResultsPage() {
     results,
     loading,
     error,
-    filter,
-    setFilter,
+    filters,
+    setFilters,
+    pagination,
+    setPage,
+    setPageSize,
     expandedProgram,
     toggleProgram,
-    filteredMatches,
   } = useResults();
 
-  if (loading) {
+  if (!results && loading) {
     return (
       <main className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -33,7 +36,7 @@ export default function ResultsPage() {
     );
   }
 
-  if (error) {
+  if (error && !results) {
     return (
       <main className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="card max-w-md text-center">
@@ -90,33 +93,56 @@ export default function ResultsPage() {
       <CitizenshipNote />
       <DocumentsCTA />
 
-      <FilterBar
-        filter={filter}
-        setFilter={setFilter}
-        summary={results?.summary}
+      {/* Search & Filters */}
+      <SearchFilter
+        filters={filters}
+        onFilterChange={setFilters}
+        availableFilters={results?.availableFilters || { neighborhoods: [], programTypes: [] }}
+        loading={loading}
       />
 
       {/* Results List */}
       <section className="max-w-4xl mx-auto px-4 py-6">
-        <div className="space-y-4">
-          {filteredMatches.map((match) => (
-            <ProgramCard
-              key={match.program.id}
-              match={match}
-              isExpanded={expandedProgram === match.program.id}
-              onToggle={() => toggleProgram(match.program.id)}
-            />
-          ))}
+        {loading && (
+          <div className="flex items-center justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-chicago-blue-600" />
+          </div>
+        )}
 
-          {filteredMatches.length === 0 && (
-            <div className="card text-center py-12">
-              <p className="text-gray-600">
-                No programs match your current filter. Try selecting a different
-                filter above.
-              </p>
+        {!loading && (
+          <>
+            <div className="space-y-4">
+              {results?.matches.map((match) => (
+                <ProgramCard
+                  key={match.program.id}
+                  match={match}
+                  isExpanded={expandedProgram === match.program.id}
+                  onToggle={() => toggleProgram(match.program.id)}
+                />
+              ))}
+
+              {results?.matches.length === 0 && (
+                <div className="card text-center py-12">
+                  <p className="text-gray-600">
+                    No programs match your current filters. Try adjusting your search or filters above.
+                  </p>
+                </div>
+              )}
             </div>
-          )}
-        </div>
+
+            {/* Pagination */}
+            {pagination.totalPages > 1 && (
+              <Pagination
+                page={pagination.page}
+                totalPages={pagination.totalPages}
+                totalCount={pagination.totalCount}
+                pageSize={pagination.pageSize}
+                onPageChange={setPage}
+                onPageSizeChange={setPageSize}
+              />
+            )}
+          </>
+        )}
       </section>
     </main>
   );
