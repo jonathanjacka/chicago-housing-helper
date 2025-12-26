@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { Info, ClipboardList, ChevronRight, AlertTriangle, Check, X } from 'lucide-react';
 
 interface EligibilityCheck {
   name: string;
@@ -216,7 +217,7 @@ export default function ResultsPage() {
       <section className="max-w-4xl mx-auto px-4 pt-6">
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
           <div className="flex gap-3">
-            <span className="text-amber-600 text-xl">ℹ️</span>
+            <Info className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
             <div>
               <h3 className="font-medium text-amber-800 mb-1">Important Note</h3>
               <p className="text-sm text-amber-700">
@@ -226,6 +227,27 @@ export default function ResultsPage() {
             </div>
           </div>
         </div>
+      </section>
+
+      {/* Document Preparation CTA */}
+      <section className="max-w-4xl mx-auto px-4 pt-4">
+        <Link
+          href="/documents"
+          className="block bg-gradient-to-r from-chicago-blue-50 to-chicago-blue-100 border border-chicago-blue-200 rounded-lg p-4 hover:from-chicago-blue-100 hover:to-chicago-blue-200 transition-all"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <ClipboardList className="w-6 h-6 text-chicago-blue-600" />
+              <div>
+                <h3 className="font-semibold text-chicago-blue-800">Prepare Your Documents</h3>
+                <p className="text-sm text-chicago-blue-600">
+                  Get a personalized checklist of required documents
+                </p>
+              </div>
+            </div>
+            <ChevronRight className="w-5 h-5 text-chicago-blue-500" />
+          </div>
+        </Link>
       </section>
 
       {/* Filters */}

@@ -176,3 +176,32 @@ model AmiLimit {
   @@unique([year, householdSize])
   @@index([year])
 }
+
+// ============================================================================
+// DOCUMENT REQUIREMENTS
+// ============================================================================
+
+enum DocumentCategory {
+  INCOME
+  IDENTITY
+  HOUSING_HISTORY
+  OTHER
+}
+
+model DocumentRequirement {
+  id          String   @id @default(cuid())
+  name        String   // "Pay Stubs (3-6 months)"
+  description String?  // Detailed description of what's needed
+  category    DocumentCategory
+  validityDays Int?    // How long the document is valid (null = doesn't expire)
+  isRequired  Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  
+  // Which program types require this document
+  programTypes ProgramType[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([category])
+}
