@@ -9,7 +9,10 @@
     "db:generate": "pnpm --filter @chicago-housing-helper/database generate",
     "db:push": "pnpm --filter @chicago-housing-helper/database push",
     "db:seed": "pnpm --filter @chicago-housing-helper/database seed",
-    "db:studio": "pnpm --filter @chicago-housing-helper/database studio"
+    "db:studio": "pnpm --filter @chicago-housing-helper/database studio",
+    "db:sync": "pnpm db:sync:hud && pnpm db:sync:chicago",
+    "db:sync:hud": "pnpm --filter @chicago-housing-helper/database sync:hud",
+    "db:sync:chicago": "pnpm --filter @chicago-housing-helper/database sync:chicago"
   },
   "devDependencies": {
     "typescript": "^5.6.0"
