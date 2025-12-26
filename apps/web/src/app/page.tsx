@@ -4,7 +4,7 @@ export default function Home() {
   return (
     <main className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-chicago-blue-600 via-chicago-blue-500 to-chicago-blue-400 text-white">
+      <section className="relative bg-linear-to-br from-chicago-blue-600 via-chicago-blue-500 to-chicago-blue-400 text-white">
         <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10"></div>
         <div className="relative max-w-6xl mx-auto px-4 py-20 sm:py-32">
           <div className="text-center">

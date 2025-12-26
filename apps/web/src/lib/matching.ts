@@ -33,12 +33,9 @@ export async function calculateAmiPercentage(
   householdSize: number,
   annualIncome: number
 ): Promise<number> {
-  const currentYear = new Date().getFullYear();
-
-  // Get AMI limit for household size
+  // Get AMI limit for household size (most recent year available)
   const amiLimit = await prisma.amiLimit.findFirst({
     where: {
-      year: currentYear,
       householdSize: Math.min(householdSize, 8), // Cap at 8 for lookup
     },
     orderBy: { year: 'desc' },
@@ -61,11 +58,9 @@ export async function getIncomeLimit(
   householdSize: number,
   amiPercentage: number
 ): Promise<number> {
-  const currentYear = new Date().getFullYear();
-
+  // Get most recent AMI data available
   const amiLimit = await prisma.amiLimit.findFirst({
     where: {
-      year: currentYear,
       householdSize: Math.min(householdSize, 8),
     },
     orderBy: { year: 'desc' },

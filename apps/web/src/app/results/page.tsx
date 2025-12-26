@@ -190,7 +190,7 @@ export default function ResultsPage() {
       </header>
 
       {/* Summary */}
-      <section className="bg-gradient-to-r from-chicago-blue-600 to-chicago-blue-500 text-white py-8">
+      <section className="bg-linear-to-r from-chicago-blue-600 to-chicago-blue-500 text-white py-8">
         <div className="max-w-4xl mx-auto px-4">
           <h1 className="text-2xl sm:text-3xl font-bold mb-4">
             We found {results?.summary.total} programs
@@ -212,6 +212,22 @@ export default function ResultsPage() {
         </div>
       </section>
 
+      {/* Citizenship Note */}
+      <section className="max-w-4xl mx-auto px-4 pt-6">
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+          <div className="flex gap-3">
+            <span className="text-amber-600 text-xl">ℹ️</span>
+            <div>
+              <h3 className="font-medium text-amber-800 mb-1">Important Note</h3>
+              <p className="text-sm text-amber-700">
+                Most federal housing programs require at least one household member to be a U.S. citizen
+                or have eligible immigration status. Eligibility will be verified during the application process.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Filters */}
       <section className="bg-white border-b sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-3">
@@ -219,8 +235,8 @@ export default function ResultsPage() {
             <button
               onClick={() => setFilter('all')}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'all'
-                  ? 'bg-chicago-blue-500 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? 'bg-chicago-blue-500 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
             >
               All ({results?.summary.total})
@@ -228,8 +244,8 @@ export default function ResultsPage() {
             <button
               onClick={() => setFilter('eligible')}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'eligible'
-                  ? 'bg-chicago-blue-500 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? 'bg-chicago-blue-500 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
             >
               Eligible ({results?.summary.eligible})
@@ -237,8 +253,8 @@ export default function ResultsPage() {
             <button
               onClick={() => setFilter('open')}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'open'
-                  ? 'bg-chicago-blue-500 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? 'bg-chicago-blue-500 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
             >
               Open Now ({results?.summary.openWaitlists})
@@ -295,10 +311,10 @@ export default function ResultsPage() {
                       <div
                         key={i}
                         className={`flex items-start gap-2 text-sm p-2 rounded ${check.passed
-                            ? 'bg-green-50 text-green-800'
-                            : check.severity === 'blocker'
-                              ? 'bg-red-50 text-red-800'
-                              : 'bg-yellow-50 text-yellow-800'
+                          ? 'bg-green-50 text-green-800'
+                          : check.severity === 'blocker'
+                            ? 'bg-red-50 text-red-800'
+                            : 'bg-yellow-50 text-yellow-800'
                           }`}
                       >
                         <span>{check.passed ? '✓' : '✗'}</span>
