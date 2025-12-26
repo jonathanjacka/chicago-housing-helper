@@ -1,0 +1,49 @@
+name: Daily Data Sync
+
+on:
+  schedule:
+    # Run daily at 6:00 AM UTC (midnight CST)
+    - cron: '0 6 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Generate Prisma Client
+        run: pnpm db:generate
+
+      - name: Sync HUD Income Limits
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          HUD_API_TOKEN: ${{ secrets.HUD_API_TOKEN }}
+        run: pnpm db:sync:hud
+
+      - name: Sync Chicago Affordable Housing
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: pnpm db:sync:chicago
+
+      - name: Summary
+        run: |
+          echo "✅ Daily sync completed at $(date)"
+          echo "- HUD Income Limits synced"
+          echo "- Chicago Affordable Housing synced"

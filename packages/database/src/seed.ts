@@ -134,6 +134,135 @@ async function main() {
   }
   console.log('✅ Programs seeded');
 
+  // Seed document requirements
+  console.log('📄 Seeding document requirements...');
+
+  const documentRequirements = [
+    // Income Documents
+    {
+      id: 'pay-stubs',
+      name: 'Pay Stubs (3-6 months)',
+      description: 'Most recent pay stubs showing employer name, pay period, and gross income. Need 3-6 months depending on program.',
+      category: 'INCOME' as const,
+      validityDays: 90,
+      isRequired: true,
+      sortOrder: 1,
+      programTypes: ['HCV', 'PUBLIC_HOUSING', 'PBV', 'PBRA', 'ARO', 'LIHTC', 'OTHER'] as const,
+    },
+    {
+      id: 'bank-statements',
+      name: 'Bank Statements (3 months)',
+      description: 'Statements from all checking, savings, and investment accounts for the past 3 months.',
+      category: 'INCOME' as const,
+      validityDays: 90,
+      isRequired: true,
+      sortOrder: 2,
+      programTypes: ['HCV', 'PUBLIC_HOUSING', 'PBV', 'PBRA', 'ARO', 'LIHTC', 'OTHER'] as const,
+    },
+    {
+      id: 'tax-returns',
+      name: 'Tax Returns (2 years)',
+      description: 'Complete federal tax returns including all schedules for the past 2 years.',
+      category: 'INCOME' as const,
+      validityDays: 365,
+      isRequired: true,
+      sortOrder: 3,
+      programTypes: ['HCV', 'PUBLIC_HOUSING', 'PBV', 'PBRA'] as const,
+    },
+    {
+      id: 'benefit-letters',
+      name: 'Benefit Award Letters',
+      description: 'Current award letters for SSI, SSDI, TANF, unemployment, or other benefits.',
+      category: 'INCOME' as const,
+      validityDays: 365,
+      isRequired: false,
+      sortOrder: 4,
+      programTypes: ['HCV', 'PUBLIC_HOUSING', 'PBV', 'PBRA', 'ARO', 'LIHTC', 'OTHER'] as const,
+    },
+    // Identity Documents
+    {
+      id: 'photo-id',
+      name: 'Photo ID',
+      description: 'Valid government-issued photo ID (driver\'s license, state ID, or passport) for all adults.',
+      category: 'IDENTITY' as const,
+      validityDays: null,
+      isRequired: true,
+      sortOrder: 10,
+      programTypes: ['HCV', 'PUBLIC_HOUSING', 'PBV', 'PBRA', 'ARO', 'LIHTC', 'OTHER'] as const,
+    },
+    {
+      id: 'ssn-cards',
+      name: 'Social Security Cards',
+      description: 'Social Security cards for all household members.',
+      category: 'IDENTITY' as const,
+      validityDays: null,
+      isRequired: true,
+      sortOrder: 11,
+      programTypes: ['HCV', 'PUBLIC_HOUSING', 'PBV', 'PBRA'] as const,
+    },
+    {
+      id: 'birth-certificates',
+      name: 'Birth Certificates',
+      description: 'Birth certificates for all household members, or valid alternative documentation.',
+      category: 'IDENTITY' as const,
+      validityDays: null,
+      isRequired: true,
+      sortOrder: 12,
+      programTypes: ['HCV', 'PUBLIC_HOUSING', 'PBV', 'PBRA'] as const,
+    },
+    // Housing History
+    {
+      id: 'lease-agreement',
+      name: 'Current Lease Agreement',
+      description: 'Copy of your current lease or rental agreement.',
+      category: 'HOUSING_HISTORY' as const,
+      validityDays: null,
+      isRequired: true,
+      sortOrder: 20,
+      programTypes: ['HCV', 'PUBLIC_HOUSING', 'PBV', 'PBRA'] as const,
+    },
+    {
+      id: 'landlord-references',
+      name: 'Landlord References',
+      description: 'Contact information for current and previous landlords (past 5 years).',
+      category: 'HOUSING_HISTORY' as const,
+      validityDays: null,
+      isRequired: true,
+      sortOrder: 21,
+      programTypes: ['HCV', 'PUBLIC_HOUSING'] as const,
+    },
+    {
+      id: 'utility-bills',
+      name: 'Utility Bills',
+      description: 'Recent utility bills (gas, electric) in your name showing current address.',
+      category: 'OTHER' as const,
+      validityDays: 60,
+      isRequired: false,
+      sortOrder: 30,
+      programTypes: ['HCV', 'PUBLIC_HOUSING', 'PBV', 'PBRA', 'ARO', 'LIHTC', 'OTHER'] as const,
+    },
+  ];
+
+  for (const doc of documentRequirements) {
+    await prisma.documentRequirement.upsert({
+      where: { id: doc.id },
+      update: {
+        name: doc.name,
+        description: doc.description,
+        category: doc.category,
+        validityDays: doc.validityDays,
+        isRequired: doc.isRequired,
+        sortOrder: doc.sortOrder,
+        programTypes: [...doc.programTypes],
+      },
+      create: {
+        ...doc,
+        programTypes: [...doc.programTypes],
+      },
+    });
+  }
+  console.log('✅ Document requirements seeded');
+
   console.log('🎉 Database seeding complete!');
 }
 

@@ -9,7 +9,9 @@
     "push": "prisma db push",
     "seed": "tsx src/seed.ts",
     "studio": "prisma studio",
-    "build": "tsc"
+    "build": "tsc",
+    "sync:hud": "tsx src/sync/sync-hud.ts",
+    "sync:chicago": "tsx src/sync/sync-chicago.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0"
