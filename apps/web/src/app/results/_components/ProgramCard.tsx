@@ -1,4 +1,4 @@
-import { Check, X, ChevronUp, ChevronDown, ExternalLink, Phone } from 'lucide-react';
+import { Check, X, ChevronUp, ChevronDown, ExternalLink, Phone, MapPin } from 'lucide-react';
 import { MatchResult } from '@/types/results';
 import { StatusBadge, EligibilityBadge } from './Badges';
 
@@ -11,6 +11,17 @@ interface ProgramCardProps {
 export function ProgramCard({ match, isExpanded, onToggle }: ProgramCardProps) {
   const { program, eligibility } = match;
 
+  // Extract waitlist code from dataSource (e.g., "cha:pbv123" -> "PBV123")
+  const getWaitlistCode = (): string | null => {
+    if (!program.dataSource) return null;
+    if (program.dataSource.startsWith('cha:')) {
+      return program.dataSource.replace('cha:', '').toUpperCase();
+    }
+    return null;
+  };
+
+  const waitlistCode = getWaitlistCode();
+
   return (
     <div
       className={`card cursor-pointer ${!eligibility.isEligible ? 'opacity-75' : ''}`}
@@ -18,13 +29,28 @@ export function ProgramCard({ match, isExpanded, onToggle }: ProgramCardProps) {
     >
       {/* Program Header */}
       <div className="flex flex-wrap items-start justify-between gap-2 mb-3">
-        <div>
-          <div className="text-xs text-chicago-blue-600 font-medium mb-1">
-            {program.provider}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 text-xs text-chicago-blue-600 font-medium mb-1">
+            <span>{program.provider}</span>
+            {waitlistCode && (
+              <span className="bg-gray-100 px-1.5 py-0.5 rounded text-gray-600 font-mono">
+                {waitlistCode}
+              </span>
+            )}
           </div>
           <h3 className="font-semibold text-gray-900">{program.name}</h3>
+
+          {/* Address / Neighborhood */}
+          {(program.address || program.neighborhood) && (
+            <div className="flex items-center gap-1 text-sm text-gray-500 mt-1">
+              <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
+              <span className="truncate">
+                {program.address || program.neighborhood}
+              </span>
+            </div>
+          )}
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-shrink-0">
           <EligibilityBadge match={match} />
           <StatusBadge status={program.waitlistStatus} />
         </div>
@@ -32,7 +58,7 @@ export function ProgramCard({ match, isExpanded, onToggle }: ProgramCardProps) {
 
       {/* Description */}
       {program.description && (
-        <p className="text-gray-600 text-sm mb-3">{program.description}</p>
+        <p className="text-gray-600 text-sm mb-3 line-clamp-2">{program.description}</p>
       )}
 
       {/* Expanded Details */}
@@ -44,10 +70,10 @@ export function ProgramCard({ match, isExpanded, onToggle }: ProgramCardProps) {
               <div
                 key={i}
                 className={`flex items-start gap-2 text-sm p-2 rounded ${check.passed
-                    ? 'bg-green-50 text-green-800'
-                    : check.severity === 'blocker'
-                      ? 'bg-red-50 text-red-800'
-                      : 'bg-yellow-50 text-yellow-800'
+                  ? 'bg-green-50 text-green-800'
+                  : check.severity === 'blocker'
+                    ? 'bg-red-50 text-red-800'
+                    : 'bg-yellow-50 text-yellow-800'
                   }`}
               >
                 {check.passed ? (

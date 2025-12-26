@@ -1,9 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { findMatchingPrograms, UserProfile } from '@/lib/matching';
+import { findMatchingPrograms, UserProfile, MatchFilters, PaginationParams } from '@/lib/matching';
+
+interface MatchRequestBody {
+  profile: UserProfile;
+  filters?: MatchFilters;
+  pagination?: PaginationParams;
+}
 
 export async function POST(request: NextRequest) {
   try {
-    const profile: UserProfile = await request.json();
+    const body: MatchRequestBody = await request.json();
+
+    // Support legacy format (just profile) and new format (profile + filters + pagination)
+    const profile = body.profile || body as unknown as UserProfile;
+    const filters = body.filters || {};
+    const pagination = body.pagination || { page: 1, pageSize: 20 };
 
     // Validate required fields
     if (!profile.householdSize || profile.householdSize < 1) {
@@ -20,18 +31,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const matches = await findMatchingPrograms(profile);
+    // Validate pagination
+    const validPageSizes = [10, 20, 30];
+    if (!validPageSizes.includes(pagination.pageSize)) {
+      pagination.pageSize = 20;
+    }
+    if (pagination.page < 1) {
+      pagination.page = 1;
+    }
 
-    return NextResponse.json({
-      matches,
-      summary: {
-        total: matches.length,
-        eligible: matches.filter((m) => m.eligibility.isEligible).length,
-        openWaitlists: matches.filter(
-          (m) => m.eligibility.isEligible && m.program.waitlistStatus === 'OPEN'
-        ).length,
-      },
-    });
+    const result = await findMatchingPrograms(profile, filters, pagination);
+
+    return NextResponse.json(result);
   } catch (error) {
     console.error('Error finding matches:', error);
     return NextResponse.json(

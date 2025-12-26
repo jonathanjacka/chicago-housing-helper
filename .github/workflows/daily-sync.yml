@@ -42,8 +42,15 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: pnpm db:sync:chicago
 
+      - name: Sync CHA Waitlists (Agent)
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: pnpm db:sync:cha
+
       - name: Summary
         run: |
           echo "✅ Daily sync completed at $(date)"
           echo "- HUD Income Limits synced"
           echo "- Chicago Affordable Housing synced"
+          echo "- CHA Waitlists synced"
