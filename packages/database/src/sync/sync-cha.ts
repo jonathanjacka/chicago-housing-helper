@@ -118,10 +118,15 @@ async function syncCha() {
     return;
   }
 
-  if (!validated.isValid || validated.cleanedProperties.length === 0) {
-    console.log('\n⚠️ Validation failed or no valid records');
+  if (validated.cleanedProperties.length === 0) {
+    console.log('\n⚠️ No valid records to save');
     console.log(`   Summary: ${validated.summary}`);
     return;
+  }
+
+  // Log validation notes
+  if (!validated.isValid) {
+    console.log(`\n📝 Validation notes: ${validated.summary}`);
   }
 
   // Upsert to database

@@ -10,6 +10,7 @@ import {
   Pagination,
   SearchFilter,
 } from './_components';
+import { Footer } from '@/app/_home/_components/Footer';
 
 export default function ResultsPage() {
   const {
@@ -131,7 +132,7 @@ export default function ResultsPage() {
             </div>
 
             {/* Pagination */}
-            {pagination.totalPages > 1 && (
+            {pagination.totalCount > 0 && (
               <Pagination
                 page={pagination.page}
                 totalPages={pagination.totalPages}
@@ -144,6 +145,7 @@ export default function ResultsPage() {
           </>
         )}
       </section>
+      <Footer />
     </main>
   );
 }

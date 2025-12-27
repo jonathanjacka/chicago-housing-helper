@@ -34,7 +34,7 @@ export function ProgramsPreview() {
             href="/programs"
             className="text-chicago-blue-600 hover:text-chicago-blue-700 font-medium inline-flex items-center gap-1"
           >
-            View all programs
+            Learn about program types
             <ChevronRight className="w-4 h-4" />
           </Link>
         </div>
