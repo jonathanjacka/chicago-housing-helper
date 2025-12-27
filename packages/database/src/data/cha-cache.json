@@ -2,77 +2,77 @@
   "sources": {
     "sources": [
       {
-        "url": "https://www.thecha.org/sites/default/files/2025-07/Waitlist-by-Property-2025-Q2_Transparency.xlsx",
+        "url": "/sites/default/files/2025-07/Waitlist-by-Property-2025-Q2_Transparency.xlsx",
         "filename": "Waitlist-by-Property-2025-Q2_Transparency.xlsx",
-        "description": "Lists all CHA properties with active waitlists, including property codes, waitlist names, target populations (seniors, families, etc.), and program types (Public Housing or Project-Based Vouchers)",
+        "description": "List of every CHA property with an active waitlist. Contains unique property codes, official waitlist names, target population and corresponding program (Public Housing or Project-Based Vouchers).",
         "dataType": "waitlist_properties",
         "quarter": "2025 Q2"
       },
       {
-        "url": "https://www.thecha.org/sites/default/files/2025-04/Waitlist-by-Property-2025-Q1_04.25_S%26I.xlsx",
-        "filename": "Waitlist-by-Property-2025-Q1_04.25_S&I.xlsx",
-        "description": "Lists all CHA properties with active waitlists, including property codes, waitlist names, target populations (seniors, families, etc.), and program types (Public Housing or Project-Based Vouchers)",
-        "dataType": "waitlist_properties",
-        "quarter": "2025 Q1"
-      },
-      {
-        "url": "https://www.thecha.org/sites/default/files/2025-02/Waitlist-Property-24Q4-Transparency.xlsx",
-        "filename": "Waitlist-Property-24Q4-Transparency.xlsx",
-        "description": "Lists all CHA properties with active waitlists, including property codes, waitlist names, target populations (seniors, families, etc.), and program types (Public Housing or Project-Based Vouchers)",
-        "dataType": "waitlist_properties",
-        "quarter": "2024 Q4"
-      },
-      {
-        "url": "https://www.thecha.org/sites/default/files/2025-07/Waitlist-Total-by-Waitlist-2025-Q2_Transparency.xlsx",
+        "url": "/sites/default/files/2025-07/Waitlist-Total-by-Waitlist-2025-Q2_Transparency.xlsx",
         "filename": "Waitlist-Total-by-Waitlist-2025-Q2_Transparency.xlsx",
-        "description": "Contains total number of applicants for each property and waitlist, with program type, property codes, waitlist names, target populations, and applicant counts",
+        "description": "Total number of applicants for each property and waitlist. Includes overall program, property codes, waitlist, target population and total applicants.",
         "dataType": "waitlist_totals",
         "quarter": "2025 Q2"
       },
       {
-        "url": "https://www.thecha.org/sites/default/files/2025-04/Waitlist-Total-by-Waitlist-2025-Q1_04.25_S%26I.xlsx",
-        "filename": "Waitlist-Total-by-Waitlist-2025-Q1_04.25_S&I.xlsx",
-        "description": "Contains total number of applicants for each property and waitlist, with program type, property codes, waitlist names, target populations, and applicant counts",
-        "dataType": "waitlist_totals",
-        "quarter": "2025 Q1"
-      },
-      {
-        "url": "https://www.thecha.org/sites/default/files/2025-02/Waitlist-Total-by-Waitlist-02.25-Transparency.xlsx",
-        "filename": "Waitlist-Total-by-Waitlist-02.25-Transparency.xlsx",
-        "description": "Contains total number of applicants for each property and waitlist, with program type, property codes, waitlist names, target populations, and applicant counts",
-        "dataType": "waitlist_totals",
-        "quarter": "2024 Q4"
-      },
-      {
-        "url": "https://www.thecha.org/sites/default/files/2025-07/Resident-Transfer-Waitlist-Totals-by-WL-2025-Q2_Transparency.xlsx",
+        "url": "/sites/default/files/2025-07/Resident-Transfer-Waitlist-Totals-by-WL-2025-Q2_Transparency.xlsx",
         "filename": "Resident-Transfer-Waitlist-Totals-by-WL-2025-Q2_Transparency.xlsx",
-        "description": "Family Public Housing resident transfer waitlist data with property codes, transfer waitlist names, and eligibility requirements (1+ years residence, good standing)",
-        "dataType": "other",
+        "description": "Family Public Housing properties with active resident transfer waitlists, including property codes, transfer waitlist names, and corresponding programs. For residents who have lived in their unit for at least one year in good standing.",
+        "dataType": "waitlist_totals",
         "quarter": "2025 Q2"
       },
       {
-        "url": "https://www.thecha.org/sites/default/files/2025-04/Resident-Transfer-Waitlist-Totals-by-WL-2025-Q1_04.25_S%26I.xlsx",
-        "filename": "Resident-Transfer-Waitlist-Totals-by-WL-2025-Q1_04.25_S&I.xlsx",
-        "description": "Family Public Housing resident transfer waitlist data with property codes, transfer waitlist names, and eligibility requirements (1+ years residence, good standing)",
-        "dataType": "other",
-        "quarter": "2025 Q1"
-      },
-      {
-        "url": "https://www.thecha.org/sites/default/files/2025-02/Resident-Transfer-Waitlist-Totals-WL-24Q4-Transparency.xlsx",
-        "filename": "Resident-Transfer-Waitlist-Totals-WL-24Q4-Transparency.xlsx",
-        "description": "Family Public Housing resident transfer waitlist data with property codes, transfer waitlist names, and eligibility requirements (1+ years residence, good standing)",
-        "dataType": "other",
-        "quarter": "2024 Q4"
-      },
-      {
-        "url": "https://www.thecha.org/sites/default/files/2025-12/Applicant-Leasing-Outcomes-Q3-25_12.25_Transparency.xlsx",
+        "url": "/sites/default/files/2025-12/Applicant-Leasing-Outcomes-Q3-25_12.25_Transparency.xlsx",
         "filename": "Applicant-Leasing-Outcomes-Q3-25_12.25_Transparency.xlsx",
-        "description": "Public Housing waitlist applicant leasing outcomes including screening results, timeframes, and reasons for outcomes (offered unit, removed from waitlist, returned to queue, income ineligibility, etc.)",
+        "description": "Results of leasing process for Public Housing waitlist applicants, including whether outcome (offered unit, removed from waitlist, returned to queue), screening time length, and reasons for outcomes (passed screening, failed to respond, missing documentation, income ineligibility, refused unit, etc.)",
         "dataType": "leasing_outcomes",
         "quarter": "2025 Q3"
+      },
+      {
+        "url": "/sites/default/files/2025-04/Waitlist-by-Property-2025-Q1_04.25_S%26I.xlsx",
+        "filename": "Waitlist-by-Property-2025-Q1_04.25_S&I.xlsx",
+        "description": "List of every CHA property with an active waitlist. Contains unique property codes, official waitlist names, target population and corresponding program (Public Housing or Project-Based Vouchers).",
+        "dataType": "waitlist_properties",
+        "quarter": "2025 Q1"
+      },
+      {
+        "url": "/sites/default/files/2025-04/Waitlist-Total-by-Waitlist-2025-Q1_04.25_S%26I.xlsx",
+        "filename": "Waitlist-Total-by-Waitlist-2025-Q1_04.25_S&I.xlsx",
+        "description": "Total number of applicants for each property and waitlist. Includes overall program, property codes, waitlist, target population and total applicants.",
+        "dataType": "waitlist_totals",
+        "quarter": "2025 Q1"
+      },
+      {
+        "url": "/sites/default/files/2025-04/Resident-Transfer-Waitlist-Totals-by-WL-2025-Q1_04.25_S%26I.xlsx",
+        "filename": "Resident-Transfer-Waitlist-Totals-by-WL-2025-Q1_04.25_S&I.xlsx",
+        "description": "Family Public Housing properties with active resident transfer waitlists, including property codes, transfer waitlist names, and corresponding programs.",
+        "dataType": "waitlist_totals",
+        "quarter": "2025 Q1"
+      },
+      {
+        "url": "/sites/default/files/2025-02/Waitlist-Property-24Q4-Transparency.xlsx",
+        "filename": "Waitlist-Property-24Q4-Transparency.xlsx",
+        "description": "List of every CHA property with an active waitlist. Contains unique property codes, official waitlist names, target population and corresponding program (Public Housing or Project-Based Vouchers).",
+        "dataType": "waitlist_properties",
+        "quarter": "2024 Q4"
+      },
+      {
+        "url": "/sites/default/files/2025-02/Waitlist-Total-by-Waitlist-02.25-Transparency.xlsx",
+        "filename": "Waitlist-Total-by-Waitlist-02.25-Transparency.xlsx",
+        "description": "Total number of applicants for each property and waitlist. Includes overall program, property codes, waitlist, target population and total applicants.",
+        "dataType": "waitlist_totals",
+        "quarter": "2024 Q4"
+      },
+      {
+        "url": "/sites/default/files/2025-02/Resident-Transfer-Waitlist-Totals-WL-24Q4-Transparency.xlsx",
+        "filename": "Resident-Transfer-Waitlist-Totals-WL-24Q4-Transparency.xlsx",
+        "description": "Family Public Housing properties with active resident transfer waitlists, including property codes, transfer waitlist names, and corresponding programs.",
+        "dataType": "waitlist_totals",
+        "quarter": "2024 Q4"
       }
     ],
-    "notes": "Found comprehensive CHA waitlist data across multiple quarters. The most recent data is from 2025 Q2/Q3. Key findings: 4 program types mentioned (Public Housing, Project-Based Voucher, Housing Choice Voucher, Project-Based Rental Assistance Program), target populations include families, seniors (62+), veterans, disabled, and homeless populations. The leasing outcomes data provides valuable insights into application success rates and common barriers. Transfer waitlist data shows internal mobility options for existing residents. All files are Excel format and appear to contain the core data needed for eligibility matching."
+    "notes": "Found comprehensive housing waitlist data from CHA's transparency portal. The most recent data is from 2025 Q2 for waitlist properties and totals, plus 2025 Q3 for leasing outcomes. The data covers multiple program types (Public Housing, Project-Based Vouchers, Housing Choice Voucher, Project-Based Rental Assistance Program) and target populations (families, seniors, supportive housing for homeless/veterans/disabled). Key data includes property codes, waitlist names, target populations, program types, applicant totals, and leasing outcomes. This should provide excellent foundation for helping residents identify eligible housing programs."
   },
-  "timestamp": "2025-12-26T14:51:39.096Z"
+  "timestamp": "2025-12-27T12:06:38.893Z"
 }
