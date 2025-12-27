@@ -12,7 +12,9 @@
     "build": "tsc",
     "sync:hud": "tsx src/sync/sync-hud.ts",
     "sync:chicago": "tsx src/sync/sync-chicago.ts",
-    "sync:cha": "tsx src/sync/sync-cha.ts"
+    "sync:cha": "tsx src/sync/sync-cha.ts",
+    "sync:geocode": "tsx src/sync/sync-geocode.ts",
+    "sync:enrich": "tsx src/sync/sync-enrich.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.1",
