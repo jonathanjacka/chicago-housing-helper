@@ -19,8 +19,11 @@ export interface Program {
   websiteUrl: string | null;
   applicationUrl: string | null;
   contactPhone: string | null;
+  contactEmail: string | null;
   neighborhood: string | null;
   address: string | null;
+  latitude: number | null;
+  longitude: number | null;
   dataSource: string | null;
 }
 

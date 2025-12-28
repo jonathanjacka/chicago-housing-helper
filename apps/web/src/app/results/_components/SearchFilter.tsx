@@ -2,6 +2,7 @@
 
 import { Search, X } from 'lucide-react';
 import { MatchFilters } from '@/types/results';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 interface SearchFilterProps {
   filters: MatchFilters;
@@ -13,22 +14,77 @@ interface SearchFilterProps {
   loading?: boolean;
 }
 
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+
+const MIN_SEARCH_LENGTH = 3;
+const DEBOUNCE_DELAY = 300; // ms
+
 export function SearchFilter({
   filters,
   onFilterChange,
   availableFilters,
   loading,
 }: SearchFilterProps) {
-  const updateFilter = (key: keyof MatchFilters, value: string | undefined) => {
-    onFilterChange({ ...filters, [key]: value || undefined });
-  };
+  const [searchInput, setSearchInput] = useState(filters.search || '');
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
-  const clearFilters = () => {
+  // Refs to avoid stale closures in useEffect while satisfying exhaustive-deps
+  const filtersRef = useRef(filters);
+  const onFilterChangeRef = useRef(onFilterChange);
+
+  // Keep refs updated
+  useEffect(() => {
+    filtersRef.current = filters;
+    onFilterChangeRef.current = onFilterChange;
+  }, [filters, onFilterChange]);
+
+  const debouncedSearch = useDebounce(searchInput, DEBOUNCE_DELAY);
+
+  useEffect(() => {
+    const currentFilters = filtersRef.current;
+    const searchValue = debouncedSearch.length >= MIN_SEARCH_LENGTH ? debouncedSearch :
+      debouncedSearch.length === 0 ? undefined :
+        currentFilters.search;
+
+    if (searchValue !== currentFilters.search) {
+      onFilterChangeRef.current({ ...currentFilters, search: searchValue });
+    }
+  }, [debouncedSearch]);
+
+  // Keep focus on search input after filter changes
+  useEffect(() => {
+    if (searchInputRef.current && document.activeElement !== searchInputRef.current) {
+      if (searchInput.length > 0) {
+        searchInputRef.current.focus();
+      }
+    }
+  }, [loading, searchInput.length]);
+
+  const updateFilter = useCallback((key: keyof MatchFilters, value: string | undefined) => {
+    onFilterChange({ ...filters, [key]: value || undefined });
+  }, [filters, onFilterChange]);
+
+  const clearFilters = useCallback(() => {
+    setSearchInput('');
     onFilterChange({ eligibility: 'all' });
-  };
+  }, [onFilterChange]);
 
   const hasActiveFilters =
-    filters.search ||
+    searchInput ||
     filters.neighborhood ||
     filters.programType ||
     (filters.eligibility && filters.eligibility !== 'all');
@@ -40,13 +96,19 @@ export function SearchFilter({
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           <input
+            ref={searchInputRef}
             type="text"
-            placeholder="Search by name, address, or provider..."
-            value={filters.search || ''}
-            onChange={(e) => updateFilter('search', e.target.value)}
+            placeholder="Search by name, address, or provider (min 3 chars)..."
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
             className="w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-chicago-blue-500 focus:border-transparent"
             disabled={loading}
           />
+          {searchInput.length > 0 && searchInput.length < MIN_SEARCH_LENGTH && (
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">
+              {MIN_SEARCH_LENGTH - searchInput.length} more chars
+            </span>
+          )}
         </div>
 
         {/* Filter row */}

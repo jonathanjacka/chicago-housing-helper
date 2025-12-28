@@ -12,12 +12,16 @@
     "build": "tsc",
     "sync:hud": "tsx src/sync/sync-hud.ts",
     "sync:chicago": "tsx src/sync/sync-chicago.ts",
-    "sync:cha": "tsx src/sync/sync-cha.ts"
+    "sync:cha": "tsx src/sync/sync-cha.ts",
+    "sync:geocode": "tsx src/sync/sync-geocode.ts",
+    "sync:enrich": "tsx src/sync/sync-enrich.ts",
+    "sync:validate": "tsx src/sync/sync-validate-links.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.1",
     "@prisma/client": "^5.22.0",
     "ai": "^6.0.3",
+    "dotenv": "^17.2.3",
     "xlsx": "^0.18.5",
     "zod": "^4.2.1"
   },

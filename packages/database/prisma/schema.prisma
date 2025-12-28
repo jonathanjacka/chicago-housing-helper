@@ -101,6 +101,8 @@ model Program {
   address      String?
   neighborhood String?
   zipCode      String?
+  latitude     Float?
+  longitude    Float?
 
   // Contact
   contactPhone String?
@@ -110,6 +112,7 @@ model Program {
 
   // Data quality
   lastSynced   DateTime?
+  enrichedAt   DateTime?  // When LLM enrichment was last run
   dataSource   String?
   notes        String?
 

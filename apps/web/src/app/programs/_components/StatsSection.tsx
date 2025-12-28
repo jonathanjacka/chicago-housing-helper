@@ -48,14 +48,14 @@ export function StatsSection() {
       label: 'Open Waitlists',
     },
     {
-      icon: Users,
-      value: stats.programTypes['PBV'] || 0,
-      label: 'Project-Based Voucher Properties',
+      icon: TrendingUp,
+      value: (stats.programTypes['LIHTC'] || 0).toLocaleString(),
+      label: 'LIHTC Properties',
     },
     {
-      icon: TrendingUp,
-      value: stats.programTypes['PUBLIC_HOUSING'] || 0,
-      label: 'Public Housing Options',
+      icon: Users,
+      value: (stats.programTypes['ARO'] || 0).toLocaleString(),
+      label: 'ARO Units',
     },
   ];
 

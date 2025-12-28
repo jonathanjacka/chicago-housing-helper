@@ -1,0 +1,43 @@
+name: Weekly Enrichment
+
+on:
+  schedule:
+    # Run weekly on Sunday at 7:00 AM UTC (1:00 AM CST)
+    - cron: '0 7 * * 0'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  enrich:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Generate Prisma Client
+        run: pnpm db:generate
+
+      - name: Enrich New Programs
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: pnpm db:sync:enrich
+
+      - name: Summary
+        run: |
+          echo "✅ Weekly enrichment completed at $(date)"
+          echo "- New programs enriched with website/application URLs"
