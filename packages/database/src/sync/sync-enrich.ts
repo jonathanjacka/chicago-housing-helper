@@ -5,6 +5,12 @@
  * Only enriches programs that haven't been enriched yet.
  */
 
+import { config } from 'dotenv';
+import { resolve } from 'path';
+
+// Load .env from workspace root
+config({ path: resolve(__dirname, '../../../../.env') });
+
 import { runEnrichment } from '../services/enrichment-agent';
 import { prisma } from '../index';
 

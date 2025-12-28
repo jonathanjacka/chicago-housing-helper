@@ -8,6 +8,7 @@ import {
   ProgressBar,
   DocumentCategorySection
 } from './_components';
+import { Footer } from '@/app/_home/_components';
 
 export default function DocumentsPage() {
   const {
@@ -103,6 +104,7 @@ export default function DocumentsPage() {
           </ul>
         </div>
       </footer>
+      <Footer />
     </main>
   );
 }

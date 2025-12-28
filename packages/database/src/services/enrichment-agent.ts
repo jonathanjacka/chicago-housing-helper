@@ -1,8 +1,5 @@
 /**
- * LLM Enrichment Agent
- * 
- * Uses Claude to research and fill missing contact/application info
- * for housing programs.
+ * LLM Enrichment Agent - research and fill missing contact/application info for housing programs.
  */
 
 import { anthropic } from '@ai-sdk/anthropic';
@@ -10,7 +7,6 @@ import { generateObject } from 'ai';
 import { z } from 'zod';
 import { prisma } from '../index';
 
-// Schema for enrichment results
 const EnrichmentSchema = z.object({
   websiteUrl: z.string().url().nullable().describe('Official website URL for the property or program'),
   applicationUrl: z.string().url().nullable().describe('Direct link to application or waitlist signup'),
@@ -43,16 +39,39 @@ Program Information:
 - Address: ${program.address || 'Unknown'}
 - Neighborhood: ${program.neighborhood || 'Unknown'}
 
-Your task: Find official contact and application information for this property or program.
+Your task: Find official contact and APPLICATION information for this property or program.
 
-Research guidelines:
-1. For CHA (Chicago Housing Authority) programs, check thecha.org
+IMPORTANT: Finding an application URL is the TOP PRIORITY. Many residents need to know exactly where to apply.
+
+Research guidelines for APPLICATION URLs:
+1. Search for the exact property name + "apply" or "application"
+2. Look for property management portals:
+   - RentCafe (apply.rentcafe.com, [property].rentcafe.com)
+   - AffordableHousing.com listings
+   - Yardi/RealPage portals
+   - ApplyOnline247.com
+3. For CHA programs:
+   - Check thecha.org/residents for waitlist info
+   - Many CHA properties use centralized waitlists
+4. For LIHTC/affordable properties:
+   - Often managed by companies like Related, Evergreen, Hispanic Housing
+   - Search "[property name] Chicago apartments apply"
+5. If no direct application link exists:
+   - Note in the 'notes' field: "Applications accepted by phone/in-person only"
+
+Research guidelines for WEBSITE URLs:
+1. For CHA programs, check thecha.org for the specific program page
 2. For City of Chicago programs, check chicago.gov/housing
-3. For specific properties, search for the property name + "affordable housing Chicago"
-4. Only return URLs that are likely to still work (official government or established non-profit sites)
-5. If you can't find specific info, return null for that field
+3. For specific properties, search for the property name + "Chicago apartments"
+4. Property management company websites are acceptable
 
-Return the most accurate and helpful information you can find.`;
+Contact information:
+1. Look for leasing office phone numbers
+2. Property management company contact info
+3. Email addresses if available
+
+Only return URLs that are likely to still work (official sites, established property management companies).
+If you truly cannot find specific info after thorough research, return null for that field.`;
 
   try {
     const result = await generateObject({

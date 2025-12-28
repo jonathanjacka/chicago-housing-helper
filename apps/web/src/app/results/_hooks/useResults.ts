@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
-import { MatchResponse, MatchResult, MatchFilters, PaginationInfo } from '@/types/results';
+import { useEffect, useState, useCallback, useRef } from 'react';
+import { MatchResponse, MatchFilters, PaginationInfo } from '@/types/results';
 
 interface UseResultsReturn {
   results: MatchResponse | null;
@@ -34,6 +34,7 @@ export function useResults(): UseResultsReturn {
   const [filters, setFilters] = useState<MatchFilters>(DEFAULT_FILTERS);
   const [pagination, setPagination] = useState<PaginationInfo>(DEFAULT_PAGINATION);
   const [expandedProgram, setExpandedProgram] = useState<string | null>(null);
+  const initialized = useRef(false);
 
   const fetchMatches = useCallback(async (
     currentFilters: MatchFilters,
@@ -77,10 +78,13 @@ export function useResults(): UseResultsReturn {
     }
   }, []);
 
-  // Initial fetch
+  // Initial fetch (runs once on mount)
   useEffect(() => {
-    fetchMatches(filters, pagination.page, pagination.pageSize);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    if (!initialized.current) {
+      initialized.current = true;
+      fetchMatches(filters, pagination.page, pagination.pageSize);
+    }
+  }, [fetchMatches, filters, pagination.page, pagination.pageSize]);
 
   // Refetch when filters change (reset to page 1)
   const handleSetFilters = useCallback((newFilters: MatchFilters) => {

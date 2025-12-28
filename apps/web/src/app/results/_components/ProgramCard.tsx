@@ -204,8 +204,32 @@ export function ProgramCard({ match, isExpanded, onToggle }: ProgramCardProps) {
           {/* Fallback guidance when no application URL */}
           {!program.applicationUrl && (
             <div className="mt-4 p-3 bg-blue-50 rounded-lg text-sm text-blue-800">
-              <strong>How to apply:</strong> Contact {program.provider} directly
-              {contactPhone && ` at ${contactPhone}`} or visit their website to inquire about this program.
+              <strong className="block mb-2">How to apply for this program:</strong>
+              {program.type === 'HCV' || program.type === 'PUBLIC_HOUSING' ? (
+                <ol className="list-decimal list-inside space-y-1 text-blue-700">
+                  <li>Visit <a href="https://www.thecha.org" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-900" onClick={(e) => e.stopPropagation()}>thecha.org</a> to check if the waitlist is open</li>
+                  <li>CHA waitlists open periodically - sign up for notifications</li>
+                  <li>Call CHA at <a href="tel:+13127428500" className="underline" onClick={(e) => e.stopPropagation()}>(312) 742-8500</a> for current status</li>
+                </ol>
+              ) : program.type === 'PBV' ? (
+                <ol className="list-decimal list-inside space-y-1 text-blue-700">
+                  <li>This is a Project-Based Voucher property at a specific location</li>
+                  <li>Contact the property directly{contactPhone && <> at <a href={`tel:${contactPhone}`} className="underline" onClick={(e) => e.stopPropagation()}>{contactPhone}</a></>}</li>
+                  <li>Ask about current availability and application process</li>
+                </ol>
+              ) : program.type === 'LIHTC' || program.type === 'ARO' ? (
+                <ol className="list-decimal list-inside space-y-1 text-blue-700">
+                  <li>Contact the property&apos;s leasing office directly{contactPhone && <> at <a href={`tel:${contactPhone}`} className="underline" onClick={(e) => e.stopPropagation()}>{contactPhone}</a></>}</li>
+                  <li>Ask about income-restricted units and availability</li>
+                  <li>Bring proof of income to verify eligibility</li>
+                </ol>
+              ) : (
+                <ol className="list-decimal list-inside space-y-1 text-blue-700">
+                  <li>Contact {program.provider} directly{contactPhone && <> at <a href={`tel:${contactPhone}`} className="underline" onClick={(e) => e.stopPropagation()}>{contactPhone}</a></>}</li>
+                  <li>Ask about the application process and current availability</li>
+                  {websiteUrl && <li>Visit their <a href={websiteUrl} target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-900" onClick={(e) => e.stopPropagation()}>website</a> for more information</li>}
+                </ol>
+              )}
             </div>
           )}
         </div>
