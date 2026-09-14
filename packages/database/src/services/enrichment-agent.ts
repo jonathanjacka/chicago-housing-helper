@@ -94,7 +94,9 @@ function getDefaultEnrichment(provider: string): Partial<EnrichmentResult> {
   const defaults: Record<string, Partial<EnrichmentResult>> = {
     'Chicago Housing Authority': {
       websiteUrl: 'https://www.thecha.org',
-      applicationUrl: 'https://www.thecha.org/residents',
+      // applyonline.thecha.org is the official application portal (verified 2026-09-13)
+      // thecha.org/residents was previously used here but returns 404
+      applicationUrl: 'https://applyonline.thecha.org/home',
       contactPhone: '(312) 742-8500',
     },
     'City of Chicago': {

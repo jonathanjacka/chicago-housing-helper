@@ -15,7 +15,8 @@
     "sync:cha": "tsx src/sync/sync-cha.ts",
     "sync:geocode": "tsx src/sync/sync-geocode.ts",
     "sync:enrich": "tsx src/sync/sync-enrich.ts",
-    "sync:validate": "tsx src/sync/sync-validate-links.ts"
+    "sync:validate": "tsx src/sync/sync-validate-links.ts",
+    "test": "vitest run"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.1",
@@ -29,6 +30,7 @@
     "@types/node": "^22.0.0",
     "prisma": "^5.22.0",
     "tsx": "^4.19.0",
-    "typescript": "^5.6.0"
+    "typescript": "^5.6.0",
+    "vitest": "^2.0.0"
   }
 }

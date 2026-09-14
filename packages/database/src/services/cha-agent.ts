@@ -339,6 +339,10 @@ const ValidationResultSchema = z.object({
     programType: z.string().optional(),
     targetPopulation: z.string().optional(),
     applicantCount: z.number().optional(),
+    // Previously dropped by schema — now preserved from Phase 3 extraction
+    address: z.string().optional(),
+    contactPhone: z.string().optional(),
+    status: z.string().optional(),
   })),
   summary: z.string(),
 });

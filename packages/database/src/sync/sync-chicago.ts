@@ -1,13 +1,15 @@
 /**
  * Sync script for Chicago Open Data - Affordable Housing
  * Run with: pnpm db:sync:chicago
- * 
- * Source: Chicago Data Portal - Affordable Rental Housing Developments
- * https://data.cityofchicago.org/Community-Economic-Development/Affordable-Rental-Housing-Developments/s6ha-ppgi
  */
 
-import { PrismaClient, ProgramType } from '@prisma/client';
-import { fetchAffordableHousing, mapPropertyType } from '../services/chicago-data';
+import { PrismaClient } from '@prisma/client';
+import {
+  fetchAffordableHousing,
+  mapPropertyType,
+  mapTargetPopulation,
+  deriveIncomeLimitPctAmi,
+} from '../services/chicago-data';
 
 const prisma = new PrismaClient();
 
@@ -28,48 +30,46 @@ async function syncChicagoData() {
   let skipped = 0;
 
   for (const property of properties) {
-    // Skip if no name or address
     if (!property.property_name || !property.address) {
       skipped++;
       continue;
     }
 
-    // Create a unique source ID based on address
     const sourceId = `chicago:${property.address.toLowerCase().replace(/\s+/g, '-')}`;
 
     try {
-      // Check if program already exists with this source
       const existing = await prisma.program.findFirst({
         where: { dataSource: sourceId },
       });
 
+      // Use Socrata lat/lng directly when available (authoritative geocoords)
+      const latitude = property.latitude ? parseFloat(property.latitude) : null;
+      const longitude = property.longitude ? parseFloat(property.longitude) : null;
+      const hasGeocoords = latitude !== null && longitude !== null && !isNaN(latitude) && !isNaN(longitude);
+
       const programData = {
         name: property.property_name,
         provider: property.management_company || 'City of Chicago',
-        type: mapPropertyType(property.property_type) as ProgramType,
+        type: mapPropertyType(property.property_type),
+        targetPopulation: mapTargetPopulation(property.property_type),
         address: property.address,
         neighborhood: property.community_area,
         zipCode: property.zip_code,
         contactPhone: property.phone_number || null,
+        // Only set lat/lng from Socrata; leave null for Nominatim to fill later
+        ...(hasGeocoords ? { latitude, longitude } : {}),
         dataSource: sourceId,
         lastSynced: new Date(),
-        // Most Chicago ARO units are 60% AMI
-        incomeLimitPctAmi: property.property_type === 'ARO' ? 60 : 80,
+        incomeLimitPctAmi: deriveIncomeLimitPctAmi(property.property_type),
         waitlistStatus: 'UNKNOWN' as const,
-        targetPopulation: 'ALL' as const,
         description: `${property.units || 'Multiple'} affordable units in ${property.community_area}`,
       };
 
       if (existing) {
-        await prisma.program.update({
-          where: { id: existing.id },
-          data: programData,
-        });
+        await prisma.program.update({ where: { id: existing.id }, data: programData });
         updated++;
       } else {
-        await prisma.program.create({
-          data: programData,
-        });
+        await prisma.program.create({ data: programData });
         created++;
       }
     } catch (error) {
