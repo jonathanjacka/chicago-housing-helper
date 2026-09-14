@@ -13,7 +13,11 @@
     "db:sync": "pnpm db:sync:hud && pnpm db:sync:chicago && pnpm db:sync:cha",
     "db:sync:hud": "pnpm --filter @chicago-housing-helper/database sync:hud",
     "db:sync:chicago": "pnpm --filter @chicago-housing-helper/database sync:chicago",
-    "db:sync:cha": "pnpm --filter @chicago-housing-helper/database sync:cha"
+    "db:sync:cha": "pnpm --filter @chicago-housing-helper/database sync:cha",
+    "db:sync:geocode": "pnpm --filter @chicago-housing-helper/database sync:geocode",
+    "db:sync:enrich": "pnpm --filter @chicago-housing-helper/database sync:enrich",
+    "db:sync:validate": "pnpm --filter @chicago-housing-helper/database sync:validate",
+    "db:test": "pnpm --filter @chicago-housing-helper/database test"
   },
   "devDependencies": {
     "typescript": "^5.6.0"

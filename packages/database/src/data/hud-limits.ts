@@ -1,25 +1,27 @@
 /**
  * HUD Income Limits Data
- * 
- * Official 2024 income limits from chicago.gov for Chicago/Cook County
+ *
+ * Official 2024 and 2026 income limits for Chicago/Cook County
  * Chicago-Naperville-Joliet, IL HUD Metro FMR Area
- * Effective: April 1, 2024
- * 
- * Source: https://www.chicago.gov/city/en/depts/doh/provdrs/renters/svcs/ami.html
+ *
+ * 2024: Effective April 1, 2024
+ * 2026: Effective May 1, 2026 — source: thecha.org/help-center#IncomeLimits (fetched 2026-09-13)
+ *
+ * ami60 and ami100 are official values from HUD/CHA published tables,
+ * NOT derived estimates.
  */
 
 export interface IncomeLimitData {
   year: number;
   householdSize: number;
-  ami30: number;  // 30% AMI (Extremely Low Income)
-  ami50: number;  // 50% AMI (Very Low Income)
-  ami60: number;  // 60% AMI (computed)
-  ami80: number;  // 80% AMI (Low Income)
-  ami100: number; // 100% AMI (computed from median)
+  ami30: number;
+  ami50: number;
+  ami60: number;
+  ami80: number;
+  ami100: number;
 }
 
-// Official 2024 HUD Income Limits for Chicago/Cook County
-// Source: chicago.gov - effective April 1, 2024
+// Official 2024 HUD Income Limits — Cook County
 export const INCOME_LIMITS_2024: IncomeLimitData[] = [
   { year: 2024, householdSize: 1, ami30: 23600, ami50: 39250, ami60: 47100, ami80: 62800, ami100: 78500 },
   { year: 2024, householdSize: 2, ami30: 26950, ami50: 44850, ami60: 53820, ami80: 71800, ami100: 89750 },
@@ -31,32 +33,34 @@ export const INCOME_LIMITS_2024: IncomeLimitData[] = [
   { year: 2024, householdSize: 8, ami30: 44450, ami50: 74000, ami60: 88800, ami80: 118450, ami100: 148000 },
 ];
 
-// 2025 estimates (using 2024 + anticipated 3% increase)
-// Will be updated when official 2025 limits are released
-export const INCOME_LIMITS_2025: IncomeLimitData[] = INCOME_LIMITS_2024.map(limit => ({
-  ...limit,
-  year: 2025,
-  ami30: Math.round(limit.ami30 * 1.03),
-  ami50: Math.round(limit.ami50 * 1.03),
-  ami60: Math.round(limit.ami60 * 1.03),
-  ami80: Math.round(limit.ami80 * 1.03),
-  ami100: Math.round(limit.ami100 * 1.03),
-}));
+// Official 2026 HUD Income Limits — Cook County
+// Effective May 1, 2026. Source: CHA Help Center / chicago.gov AMI chart.
+// NOTE: ami60 is the official 60% AMI value, not interpolated.
+export const INCOME_LIMITS_2026: IncomeLimitData[] = [
+  { year: 2026, householdSize: 1, ami30: 25550, ami50: 42550, ami60: 51050, ami80: 68050, ami100: 85050 },
+  { year: 2026, householdSize: 2, ami30: 29200, ami50: 48600, ami60: 58350, ami80: 77800, ami100: 97200 },
+  { year: 2026, householdSize: 3, ami30: 32850, ami50: 54700, ami60: 65650, ami80: 87500, ami100: 109350 },
+  { year: 2026, householdSize: 4, ami30: 36450, ami50: 60750, ami60: 72900, ami80: 97200, ami100: 121500 },
+  { year: 2026, householdSize: 5, ami30: 39400, ami50: 65650, ami60: 78750, ami80: 105000, ami100: 131250 },
+  { year: 2026, householdSize: 6, ami30: 44400, ami50: 70500, ami60: 84600, ami80: 112800, ami100: 140950 },
+  { year: 2026, householdSize: 7, ami30: 50050, ami50: 75350, ami60: 90400, ami80: 120550, ami100: 150700 },
+  { year: 2026, householdSize: 8, ami30: 55750, ami50: 80200, ami60: 96250, ami80: 128350, ami100: 160400 },
+];
 
-export const ALL_INCOME_LIMITS = [...INCOME_LIMITS_2024, ...INCOME_LIMITS_2025];
+export const ALL_INCOME_LIMITS = [...INCOME_LIMITS_2024, ...INCOME_LIMITS_2026];
 
 /**
- * Get income limit for a specific household size and year
+ * Get income limit for a specific household size and year.
+ * Defaults to most recent year (2026).
  */
 export function getIncomeLimit(
   householdSize: number,
   pctAmi: 30 | 50 | 60 | 80 | 100,
-  year: number = 2024
+  year: number = 2026
 ): number | null {
   const limit = ALL_INCOME_LIMITS.find(
     l => l.householdSize === householdSize && l.year === year
   );
-
   if (!limit) return null;
 
   switch (pctAmi) {
