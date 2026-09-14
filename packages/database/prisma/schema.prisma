@@ -77,6 +77,23 @@ enum TargetPopulation {
   ALL
 }
 
+enum VerificationStatus {
+  UNVERIFIED
+  PENDING
+  VERIFIED
+  STALE
+  RETIRED
+  FLAGGED
+}
+
+enum EntryMechanism {
+  DIRECT_APPLICATION
+  COORDINATED_ENTRY
+  VOUCHER_HOLDER
+  LOTTERY
+  REFERRAL
+}
+
 model Program {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
@@ -116,11 +133,122 @@ model Program {
   dataSource   String?
   notes        String?
 
+  // Provenance & lifecycle
+  sourceUrl              String?
+  isActive               Boolean          @default(true)
+  lastSeenInSourceAt     DateTime?
+  retiredAt              DateTime?
+
+  // Verification state
+  verificationStatus     VerificationStatus @default(UNVERIFIED)
+  verifiedAt             DateTime?
+  confidence             Int?
+
+  // Entry mechanism
+  entryMechanism         EntryMechanism   @default(DIRECT_APPLICATION)
+
+  // Relations
+  programSources         ProgramSource[]
+  verificationEvents     VerificationEvent[]
+  fieldConflicts         FieldConflict[]
+
   applications Application[]
 
   @@index([type])
   @@index([waitlistStatus])
   @@index([neighborhood])
+  @@index([isActive])
+  @@index([verificationStatus])
+  @@index([lastSeenInSourceAt])
+}
+
+// ============================================================================
+// PROVENANCE & AUDIT MODELS
+// ============================================================================
+
+model SyncRun {
+  id              String    @id @default(cuid())
+  source          String    // "hud", "chicago", "cha", "geocode", "enrich", "validate"
+  startedAt       DateTime
+  completedAt     DateTime?
+  status          String    // "running", "success", "partial", "failed"
+  recordsFetched  Int?
+  recordsUpserted Int?
+  recordsSkipped  Int?
+  recordsErrored  Int?
+  errorSummary    String?
+  triggeredBy     String?   // "github_actions", "manual"
+
+  @@index([source, startedAt])
+}
+
+model SourceRecord {
+  id             String    @id @default(cuid())
+  source         String    // "cha_xlsx", "socrata", "cha_property_page", "hud_lihtc"
+  sourceRecordId String    // stable ID within that source
+  quarter        String?   // "2026-Q2" for XLSX sources
+  fetchedAt      DateTime  @default(now())
+  rawPayload     Json
+  payloadHash    String
+
+  programSources ProgramSource[]
+
+  @@unique([source, sourceRecordId, quarter])
+  @@index([source, fetchedAt])
+}
+
+model ProgramSource {
+  id              String      @id @default(cuid())
+  programId       String
+  sourceRecordId  String
+  matchedBy       String      // "address", "property_code", "name_fuzzy", "manual"
+  matchConfidence Int         // 0-100
+  isCanonical     Boolean     @default(false)
+  linkedAt        DateTime    @default(now())
+
+  program         Program       @relation(fields: [programId], references: [id], onDelete: Cascade)
+  sourceRecord    SourceRecord  @relation(fields: [sourceRecordId], references: [id], onDelete: Cascade)
+
+  @@unique([programId, sourceRecordId])
+}
+
+model VerificationEvent {
+  id          String    @id @default(cuid())
+  programId   String
+  field       String
+  oldValue    String?
+  newValue    String?
+  evidence    String
+  sourceUrl   String?
+  confidence  Int
+  method      String    // "cha_xlsx", "cha_page_scrape", "head_check", "llm_reconcile", "manual"
+  verifiedAt  DateTime  @default(now())
+  verifiedBy  String?
+
+  program     Program   @relation(fields: [programId], references: [id], onDelete: Cascade)
+
+  @@index([programId, field, verifiedAt])
+}
+
+model FieldConflict {
+  id              String    @id @default(cuid())
+  programId       String
+  field           String
+  currentValue    String?
+  proposedValue   String?
+  sourceA         String
+  sourceB         String
+  conflictType    String    // "value_mismatch", "source_disagrees", "format_invalid", "suspected_stale"
+  proposedAction  String?   // "accept_proposed", "keep_current", "needs_review"
+  agentConfidence Int?
+  status          String    @default("PENDING")  // "PENDING", "ACCEPTED", "REJECTED", "DEFERRED"
+  createdAt       DateTime  @default(now())
+  resolvedAt      DateTime?
+  resolvedBy      String?
+
+  program         Program   @relation(fields: [programId], references: [id], onDelete: Cascade)
+
+  @@index([status, createdAt])
 }
 
 // ============================================================================

@@ -5,6 +5,7 @@
 
 import { PrismaClient, ProgramType, TargetPopulation, WaitlistStatus } from '@prisma/client';
 import { runAutonomousAgent, ValidationResult } from '../services/cha-agent';
+import { startSyncRun, completeSyncRun } from '../services/sync-audit';
 
 const prisma = new PrismaClient();
 
@@ -40,10 +41,11 @@ export function mapChaWaitlistStatus(status: string | undefined): WaitlistStatus
   return 'UNKNOWN';
 }
 
-async function upsertChaPrograms(validated: ValidationResult): Promise<{ created: number; updated: number; skipped: number }> {
+async function upsertChaPrograms(validated: ValidationResult): Promise<{ created: number; updated: number; skipped: number; errors: string[] }> {
   let created = 0;
   let updated = 0;
   let skipped = 0;
+  const errors: string[] = [];
 
   for (const prop of validated.cleanedProperties) {
     // Use propertyCode as primary key when available; fall back to name slug
@@ -86,47 +88,72 @@ async function upsertChaPrograms(validated: ValidationResult): Promise<{ created
     } catch (error) {
       console.error(`   ❌ Error upserting ${prop.waitlistName}:`, error);
       skipped++;
+      errors.push(`${prop.waitlistName}: ${String(error).slice(0, 100)}`);
     }
   }
 
-  return { created, updated, skipped };
+  return { created, updated, skipped, errors };
 }
 
 async function syncCha() {
-  console.log('🏠 CHA Autonomous Data Sync\n');
-  console.log('='.repeat(50));
+  const runId = await startSyncRun('cha', process.env.CI ? 'github_actions' : 'manual');
+  let created = 0;
+  let updated = 0;
+  let skipped = 0;
+  let errorCount = 0;
+  const errors: string[] = [];
+  let fetchedCount = 0;
 
-  const validated = await runAutonomousAgent();
+  try {
+    console.log('🏠 CHA Autonomous Data Sync\n');
+    console.log('='.repeat(50));
 
-  if (!validated) {
-    console.log('\n❌ Agent could not complete extraction');
-    console.log('   Existing CHA data will be preserved.\n');
-    return;
+    const validated = await runAutonomousAgent();
+
+    if (!validated) {
+      console.log('\n❌ Agent could not complete extraction');
+      console.log('   Existing CHA data will be preserved.\n');
+      return;
+    }
+
+    fetchedCount = validated.cleanedProperties.length;
+
+    if (validated.cleanedProperties.length === 0) {
+      console.log('\n⚠️ No valid records to save');
+      console.log(`   Summary: ${validated.summary}`);
+      return;
+    }
+
+    if (!validated.isValid) {
+      console.log(`\n📝 Validation notes: ${validated.summary}`);
+    }
+
+    console.log(`\n💾 Saving ${validated.cleanedProperties.length} CHA properties...`);
+    const result = await upsertChaPrograms(validated);
+    created = result.created;
+    updated = result.updated;
+    skipped = result.skipped;
+    errorCount = result.errors.length;
+    errors.push(...result.errors);
+
+    console.log(`\n   ✅ Created: ${created} programs`);
+    console.log(`   🔄 Updated: ${updated} programs`);
+    console.log(`   ⏭️  Skipped (errors): ${skipped} programs`);
+
+    const chaCount = await prisma.program.count({ where: { dataSource: { startsWith: 'cha:' } } });
+    const totalCount = await prisma.program.count();
+
+    console.log('\n' + '='.repeat(50));
+    console.log(`🎉 CHA programs in database: ${chaCount}`);
+    console.log(`📊 Total programs: ${totalCount}`);
+  } finally {
+    await completeSyncRun(runId, {
+      recordsFetched: fetchedCount,
+      recordsUpserted: created + updated,
+      recordsSkipped: skipped,
+      recordsErrored: errorCount,
+    }, undefined, errors.length > 0 ? errors.join(' | ') : undefined);
   }
-
-  if (validated.cleanedProperties.length === 0) {
-    console.log('\n⚠️ No valid records to save');
-    console.log(`   Summary: ${validated.summary}`);
-    return;
-  }
-
-  if (!validated.isValid) {
-    console.log(`\n📝 Validation notes: ${validated.summary}`);
-  }
-
-  console.log(`\n💾 Saving ${validated.cleanedProperties.length} CHA properties...`);
-  const { created, updated, skipped } = await upsertChaPrograms(validated);
-
-  console.log(`\n   ✅ Created: ${created} programs`);
-  console.log(`   🔄 Updated: ${updated} programs`);
-  console.log(`   ⏭️  Skipped (errors): ${skipped} programs`);
-
-  const chaCount = await prisma.program.count({ where: { dataSource: { startsWith: 'cha:' } } });
-  const totalCount = await prisma.program.count();
-
-  console.log('\n' + '='.repeat(50));
-  console.log(`🎉 CHA programs in database: ${chaCount}`);
-  console.log(`📊 Total programs: ${totalCount}`);
 }
 
 syncCha()
