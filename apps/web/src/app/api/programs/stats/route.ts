@@ -29,12 +29,19 @@ export async function GET() {
       return acc;
     }, {} as Record<string, number>);
 
+    const latestSync = await prisma.syncRun.findFirst({
+      where: { status: { in: ['success', 'partial'] } },
+      orderBy: { completedAt: 'desc' },
+      select: { completedAt: true, source: true },
+    });
+
     return NextResponse.json({
       total,
       programTypes,
       waitlistStatus,
       openWaitlists: waitlistStatus['OPEN'] || 0,
-      lastUpdated: new Date().toISOString(),
+      lastUpdated: latestSync?.completedAt?.toISOString() ?? null,
+      lastSyncSource: latestSync?.source ?? null,
     });
   } catch (error) {
     console.error('Error fetching program stats:', error);

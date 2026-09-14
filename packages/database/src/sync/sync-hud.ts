@@ -8,6 +8,7 @@
 import { PrismaClient } from '@prisma/client';
 import { fetchIncomeLimits } from '../services/hud-api';
 import { ALL_INCOME_LIMITS } from '../data/hud-limits';
+import { startSyncRun, completeSyncRun } from '../services/sync-audit';
 
 const prisma = new PrismaClient();
 
@@ -88,35 +89,63 @@ async function syncFromStatic() {
 }
 
 async function syncHudIncomeLimits() {
-  console.log('🏛️  Syncing HUD Income Limits for Chicago (Cook County)...\n');
+  const runId = await startSyncRun('hud', process.env.CI ? 'github_actions' : 'manual');
+  let recordsUpserted = 0;
+  let errorCount = 0;
+  const errors: string[] = [];
 
-  // Try live API for 2024 and 2025
-  const years = [2024, 2025];
-  let anySuccess = false;
+  try {
+    console.log('🏛️  Syncing HUD Income Limits for Chicago (Cook County)...\n');
 
-  for (const year of years) {
-    const success = await syncFromApi(year);
-    if (success) anySuccess = true;
+    // Try live API for 2024 and 2025
+    const years = [2024, 2025];
+    let anySuccess = false;
+
+    for (const year of years) {
+      try {
+        const success = await syncFromApi(year);
+        if (success) {
+          anySuccess = true;
+          recordsUpserted += 8; // 8 household sizes per year
+        }
+      } catch (error) {
+        errorCount++;
+        errors.push(`HUD API year ${year}: ${String(error).slice(0, 100)}`);
+      }
+    }
+
+    // If API failed completely, use static fallback
+    if (!anySuccess) {
+      console.log('⚠️  API unavailable, falling back to static data...\n');
+      try {
+        await syncFromStatic();
+        recordsUpserted += ALL_INCOME_LIMITS.length;
+      } catch (error) {
+        errorCount++;
+        errors.push(`Static fallback: ${String(error).slice(0, 100)}`);
+      }
+    }
+
+    // Summary
+    const total = await prisma.amiLimit.count();
+    const byYear = await prisma.amiLimit.groupBy({
+      by: ['year'],
+      _count: true,
+    });
+
+    console.log('📋 Summary:');
+    for (const y of byYear) {
+      console.log(`   ${y.year}: ${y._count} household sizes`);
+    }
+    console.log(`\n🎉 Total AMI limits in database: ${total}`);
+  } finally {
+    await completeSyncRun(runId, {
+      recordsFetched: recordsUpserted,
+      recordsUpserted,
+      recordsSkipped: 0,
+      recordsErrored: errorCount,
+    }, undefined, errors.length > 0 ? errors.join(' | ') : undefined);
   }
-
-  // If API failed completely, use static fallback
-  if (!anySuccess) {
-    console.log('⚠️  API unavailable, falling back to static data...\n');
-    await syncFromStatic();
-  }
-
-  // Summary
-  const total = await prisma.amiLimit.count();
-  const byYear = await prisma.amiLimit.groupBy({
-    by: ['year'],
-    _count: true,
-  });
-
-  console.log('📋 Summary:');
-  for (const y of byYear) {
-    console.log(`   ${y.year}: ${y._count} household sizes`);
-  }
-  console.log(`\n🎉 Total AMI limits in database: ${total}`);
 }
 
 syncHudIncomeLimits()
